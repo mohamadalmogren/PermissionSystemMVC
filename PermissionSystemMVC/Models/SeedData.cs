@@ -142,5 +142,8 @@ namespace PermissionSystemMVC.Models
                 new Department { Name = "Business Analysis" }
             );
         }
+
+       
+        
     }
 }

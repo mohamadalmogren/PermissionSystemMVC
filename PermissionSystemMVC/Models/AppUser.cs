@@ -12,6 +12,8 @@ namespace PermissionSystemMVC.Models
         [PersonalData]
         public string Name { get; set; }
         public Department Department { get; set; }
+
+        [Display(Name ="Department")]
         public int DepartmentId { get; set; }
     }
 }

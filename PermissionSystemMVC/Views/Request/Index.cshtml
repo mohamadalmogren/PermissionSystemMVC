@@ -7,9 +7,7 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<div class="text-center">
-    <h1 class="display-4">Requst index</h1>
-</div>
+
 @if (Model == null)
 {
     <span> NO Data !</span>
@@ -65,8 +63,16 @@ else
 
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Status)
+                        @if (User.IsInRole(RolesName.Manager) && string.Equals(item.Status, "New"))
+                        {
+                            <a class="btn btn-success" asp-action="Approve" asp-route-id="@item.Id">Approve</a>
+                            <a class="btn btn-danger" asp-action="Reject" asp-route-id="@item.Id">Reject</a>
+                        }
+                        else
+                        {
 
+                            @Html.DisplayFor(modelItem => item.Status)
+                        }
                     </td>
                 </tr>
             }

@@ -66,8 +66,8 @@ namespace PermissionSystemMVC.Controllers
             {
                 var requestNew = new Request
                 {
-                    PrmisssionType= request.PrmisssionType,
-                    DatePrmission= request.DatePrmission,
+                    PrmisssionType = request.PrmisssionType,
+                    DatePrmission = request.DatePrmission,
                     FromTime = request.FromTime,
                     ToTime = request.ToTime,
                     CreatedById = User.GetUserId(),
@@ -78,6 +78,75 @@ namespace PermissionSystemMVC.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(request);
+        }
+
+        public async Task<IActionResult> Approve(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var request = await _context.Request.FirstOrDefaultAsync(r => r.Id == id);
+
+            if (request == null)
+            {
+                return NotFound();
+            }
+
+            return View(request);
+        }
+
+        [HttpPost, ActionName("Approve")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveConfirmed(int id)
+        {
+            var request = await _context.Request.FirstOrDefaultAsync(r => r.Id == id);
+
+            if (request == null)
+            {
+                return NotFound();
+            }
+
+            if (string.Equals(request.Status, "New") == false)
+            {
+                return BadRequest();
+            }
+
+            request.Status = "Approve";
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Reject(int? id)
+        {
+            if(id== null)
+            {
+                return NotFound();
+            }
+            var request = await _context.Request.FirstOrDefaultAsync(r => r.Id == id);
+            if(request== null)
+            {
+                return NotFound();
+            }
+            return View(request);
+        }
+
+        [HttpPost, ActionName("Reject")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectConfirmed(int id)
+        {
+            var request = await _context.Request.FirstOrDefaultAsync(r => r.Id == id);
+
+            if (request == null)
+            {
+                return NotFound();
+            }
+            request.Status = "Reject";
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
         }
 
     }

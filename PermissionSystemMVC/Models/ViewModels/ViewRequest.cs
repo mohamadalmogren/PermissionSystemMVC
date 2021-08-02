@@ -19,6 +19,7 @@ namespace PermissionSystemMVC.Models.ViewModels
 
         [Display(Name = "To Time")]
         public int ToTime { get; set; }
+        public DateTime CreateDate { get; set; }
         public string Status { get; set; }
     }
 }
