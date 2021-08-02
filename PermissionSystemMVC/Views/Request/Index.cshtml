@@ -1,0 +1,76 @@
+﻿@model IEnumerable<PermissionSystemMVC.Models.Request>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<h1>Request Page</h1>
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<div class="text-center">
+    <h1 class="display-4">Requst index</h1>
+</div>
+@if (Model == null)
+{
+    <span> NO Data !</span>
+}
+else
+{
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.PrmisssionType)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DatePrmission)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FromTime)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ToTime)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PrmisssionType)
+
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DatePrmission)
+
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FromTime)
+
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ToTime)
+
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status)
+
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+}
