@@ -29,7 +29,7 @@ namespace PermissionSystemMVC.Models
             {
                 AppUser user = new()
                 {
-                    UserName = "Admin@localhost",
+                    UserName = "Admin",
                     Email = "Admin@localhost",
                     Name = "Admin",
                     EmailConfirmed = true,
@@ -50,7 +50,7 @@ namespace PermissionSystemMVC.Models
             {
                 AppUser user = new()
                 {
-                    UserName = "TestEMPLOYEE@localhost",
+                    UserName = "TestEmp",
                     Email = "TestEMPLOYEE@localhost",
                     Name = "Mohammed",
                     EmailConfirmed = true,
@@ -71,7 +71,7 @@ namespace PermissionSystemMVC.Models
             {
                 AppUser user = new()
                 {
-                    UserName = "Manager@localhost",
+                    UserName = "TestManager",
                     Email = "Manager@localhost",
                     Name = "Abdullah",
                     EmailConfirmed = true,
