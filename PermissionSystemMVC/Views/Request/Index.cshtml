@@ -63,7 +63,7 @@ else
 
                     </td>
                     <td>
-                        @if (User.IsInRole(RolesName.Manager) && string.Equals(item.Status, "New"))
+                        @if (User.IsInRole(RolesName.Manager) && string.Equals(item.Status, Request.PrmisssionStatusEnum.New))
                         {
                             <a class="btn btn-success" asp-action="Approve" asp-route-id="@item.Id">Approve</a>
                             <a class="btn btn-danger" asp-action="Reject" asp-route-id="@item.Id">Reject</a>

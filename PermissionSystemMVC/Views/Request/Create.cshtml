@@ -1,5 +1,5 @@
 ﻿@model PermissionSystemMVC.Models.ViewModels.ViewRequest;
-@{ 
+@{
     ViewData["Title"] = "Create";
 }
 
@@ -13,7 +13,9 @@
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="form-group">
             <label asp-for="PrmisssionType" class="control-label"></label>
-            <input asp-for="PrmisssionType" class="form-control" />
+            <select asp-for="PrmisssionType" class="form-control"
+                    asp-items="Html.GetEnumSelectList<Request.PrmisssionTypeEnum>()">
+            </select>
             <span asp-validation-for="PrmisssionType" class="text-danger"></span>
         </div>
         <div class="form-group">

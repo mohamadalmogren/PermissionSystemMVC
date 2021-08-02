@@ -71,12 +71,13 @@ namespace PermissionSystemMVC.Controllers
                     FromTime = request.FromTime,
                     ToTime = request.ToTime,
                     CreatedById = User.GetUserId(),
-                    Status = "New"
+                    Status = request.Status
                 };
                 _context.Request.Add(requestNew);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             return View(request);
         }
 
@@ -108,12 +109,12 @@ namespace PermissionSystemMVC.Controllers
                 return NotFound();
             }
 
-            if (string.Equals(request.Status, "New") == false)
+            if (Equals(request.Status, Models.Request.PrmisssionStatusEnum.New) == false)
             {
                 return BadRequest();
             }
 
-            request.Status = "Approve";
+            request.Status = Models.Request.PrmisssionStatusEnum.Approved;
 
             await _context.SaveChangesAsync();
 
@@ -122,12 +123,12 @@ namespace PermissionSystemMVC.Controllers
 
         public async Task<IActionResult> Reject(int? id)
         {
-            if(id== null)
+            if (id == null)
             {
                 return NotFound();
             }
             var request = await _context.Request.FirstOrDefaultAsync(r => r.Id == id);
-            if(request== null)
+            if (request == null)
             {
                 return NotFound();
             }
@@ -144,8 +145,16 @@ namespace PermissionSystemMVC.Controllers
             {
                 return NotFound();
             }
-            request.Status = "Reject";
+
+
+            if (Equals(request.Status, Models.Request.PrmisssionStatusEnum.New) == false)
+            {
+                return BadRequest();
+            }
+
+            request.Status = Models.Request.PrmisssionStatusEnum.Rejected;
             await _context.SaveChangesAsync();
+
             return RedirectToAction("Index");
         }
 

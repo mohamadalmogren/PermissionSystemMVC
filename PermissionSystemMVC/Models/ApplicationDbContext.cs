@@ -29,6 +29,14 @@ namespace PermissionSystemMVC.Models
             //    .HasOne(b => b.Manager)
             //    .WithOne(i => i.Department)
             //    .HasForeignKey<Manager>(b => b.DepartmentForeignKeyId);
+
+            builder.Entity<Request>()
+                .Property(s => s.PrmisssionType)
+                .HasConversion<string>();
+
+            builder.Entity<Request>()
+                .Property(s => s.Status)
+                .HasConversion<string>();
         }
 
 

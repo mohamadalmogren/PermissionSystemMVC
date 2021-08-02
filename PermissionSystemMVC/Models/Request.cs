@@ -7,9 +7,22 @@ namespace PermissionSystemMVC.Models
 {
     public class Request
     {
+        public enum PrmisssionTypeEnum
+        {
+            Work,
+            Personal
+        }
+
+        public enum PrmisssionStatusEnum
+        {
+            New,
+            Approved,
+            Rejected
+        }
+
         public int Id { get; set; }
 
-        public string PrmisssionType { get; set; }
+        public PrmisssionTypeEnum PrmisssionType { get; set; }
 
         [DataType(DataType.Date)]
         public DateTime DatePrmission { get; set; }
@@ -17,7 +30,7 @@ namespace PermissionSystemMVC.Models
         public int FromTime { get; set; }
 
         public int ToTime { get; set; }
-        public string Status { get; set; }
+        public PrmisssionStatusEnum Status { get; set; }
         public AppUser CreatedBy { get; set; }
         public string CreatedById { get; set; }
         public AppUser ModifiedBy { get; set; }
