@@ -7,6 +7,9 @@ namespace PermissionSystemMVC.Models.ViewModels
 {
     public class ViewRequest
     {
+        [Display(Name ="Employee Name")]
+        public string CreatedById { get; set; }
+
         [Display(Name = "Prmisssion Type")]
         public Request.PrmisssionTypeEnum PrmisssionType { get; set; }
 
@@ -19,7 +22,8 @@ namespace PermissionSystemMVC.Models.ViewModels
 
         [Display(Name = "To Time")]
         public int ToTime { get; set; }
-        public DateTime CreateDate { get; set; }
+        [Display(Name ="Created Date")]
+        public DateTime CreateDate { get; set; } = DateTime.Now;
         public Request.PrmisssionStatusEnum Status { get; set; } = Request.PrmisssionStatusEnum.New;
     }
 }

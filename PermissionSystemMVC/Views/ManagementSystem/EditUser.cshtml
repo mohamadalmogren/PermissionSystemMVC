@@ -1,0 +1,47 @@
+﻿@model PermissionSystemMVC.Models.ViewModels.UserListViewModel
+
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+
+<h1 class="display-4">Edit user</h1>
+<hr />
+
+<div style="width:50%;">
+
+    <form asp-action="EditUser">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" />
+
+        <div class="form-group">
+            <label asp-for="Email" class="control-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>   
+        
+        <div class="form-group">
+            <label asp-for="Name" class="control-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="form-group col-md-6">
+            <label asp-for="Departmentname"></label>
+            <select asp-for="Departmentname" class="form-control" asp-items="ViewBag.DepList"></select>
+            <span asp-validation-for="Departmentname" class="text-danger"></span>
+        </div>
+
+        <div class="form-group col-md-6">
+            <label asp-for="Role"></label>
+            <select asp-for="Role" class="form-control" asp-items="ViewBag.RoleList"></select>
+            <span asp-validation-for="Role" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </div>
+    </form>
+</div>
+
+

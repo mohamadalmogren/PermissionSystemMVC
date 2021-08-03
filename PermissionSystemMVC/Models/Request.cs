@@ -35,6 +35,7 @@ namespace PermissionSystemMVC.Models
         public string CreatedById { get; set; }
         public AppUser ModifiedBy { get; set; }
         public string ModifiedById { get; set; }
+        public DateTime CreateDate { get; set; } = DateTime.Now;
 
     }
 }

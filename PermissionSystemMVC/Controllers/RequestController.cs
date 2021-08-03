@@ -71,6 +71,7 @@ namespace PermissionSystemMVC.Controllers
                     FromTime = request.FromTime,
                     ToTime = request.ToTime,
                     CreatedById = User.GetUserId(),
+                    CreateDate= request.CreateDate,
                     Status = request.Status
                 };
                 _context.Request.Add(requestNew);
