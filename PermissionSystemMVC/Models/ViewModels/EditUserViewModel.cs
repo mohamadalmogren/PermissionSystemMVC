@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace PermissionSystemMVC.Models.ViewModels
 {
-    public class ViewCreateUsersModels
+    public class EditUserViewModel
     {
+        public string Id { get; set; }
         public string Username { get; set; }
 
         public string Email { get; set; }
@@ -18,5 +18,6 @@ namespace PermissionSystemMVC.Models.ViewModels
 
         [Display(Name = "Department")]
         public int DepartmentId { get; set; }
+
     }
 }

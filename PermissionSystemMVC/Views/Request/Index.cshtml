@@ -3,10 +3,16 @@
 @{
     ViewData["Title"] = "Index";
 }
-<h1>Request Page</h1>
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+
+<div class="row">
+    <div class="col-10">
+        <h2>Requests</h2>
+    </div>
+    <div class="col-2">
+        <a class="btn btn-primary" asp-action="Create">Create New</a>
+    </div>
+</div>
+<br />
 
 @if (Model == null)
 {
@@ -14,15 +20,14 @@
 }
 else
 {
-
     <table class="table">
         <thead>
             <tr>
                 @if (User.IsInRole(RolesName.Manager))
                 {
-                <th>
-                    @Html.DisplayNameFor(model => model.CreatedById)
-                </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CreatedById)
+                    </th>
                 }
                 <th>
                     @Html.DisplayNameFor(model => model.PrmisssionType)
@@ -46,53 +51,45 @@ else
             </tr>
         </thead>
         <tbody>
-
             @foreach (var item in Model)
             {
-            <tr>
-                @if (User.IsInRole(RolesName.Manager))
-                {
+                <tr>
+                    @if (User.IsInRole(RolesName.Manager))
+                    {
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CreatedBy.Name)
+                        </td>
+                    }
                     <td>
-                        @Html.DisplayFor(modelItem => item.CreatedBy.Name)
+                        @Html.DisplayFor(modelItem => item.PrmisssionType)
                     </td>
-                }
-                <td>
-                    @Html.DisplayFor(modelItem => item.PrmisssionType)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DatePrmission)
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DatePrmission)
 
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FromTime)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FromTime)
 
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ToTime)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ToTime)
 
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CreateDate)
-                </td>
-                <td>
-                    @if (User.IsInRole(RolesName.Manager) && string.Equals(item.Status, Request.PrmisssionStatusEnum.New))
-                    {
-                        <a class="btn btn-success" asp-action="Approve" asp-route-id="@item.Id">Approve</a>
-                        <a class="btn btn-danger" asp-action="Reject" asp-route-id="@item.Id">Reject</a>
-                    }
-                    else if (User.IsInRole(RolesName.Admin))
-                    {
-                        <a class="btn btn-success" asp-action="Approve" asp-route-id="@item.Id">Approve</a>
-                        <a class="btn btn-danger" asp-action="Reject" asp-route-id="@item.Id">Reject</a>
-
-                    }
-                    else
-                    {
-
-                        @Html.DisplayFor(modelItem => item.Status)
-                    }
-                </td>
-            </tr>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreateDate)
+                    </td>
+                    <td>
+                        @if (User.IsInRole(RolesName.Manager) && string.Equals(item.Status, Request.PrmisssionStatusEnum.New))
+                        {
+                            <a class="btn btn-success" asp-action="Approve" asp-route-id="@item.Id">Approve</a>
+                            <a class="btn btn-danger" asp-action="Reject" asp-route-id="@item.Id">Reject</a>
+                        }
+                        else
+                        {
+                            @Html.DisplayFor(modelItem => item.Status)
+                        }
+                    </td>
+                </tr>
             }
 
         </tbody>

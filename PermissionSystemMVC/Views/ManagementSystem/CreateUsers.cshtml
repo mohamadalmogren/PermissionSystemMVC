@@ -34,16 +34,25 @@
         </div>
     </div>
     <div class="form-row">
-        <div class="form-group col-md-6">
+        <div class="form-group col-md-6" >
             <label asp-for="DepartmentId"></label>
             <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepList"></select>
             <span asp-validation-for="DepartmentId" class="text-danger"></span>
         </div>
-        <div class="form-group col-md-6">
-            <label asp-for="Role"></label>
-            <select asp-for="Role" class="form-control" asp-items="ViewBag.RoleList"></select>
-            <span asp-validation-for="Role" class="text-danger"></span>
+        <div class="form-group col-md-6" style="padding-left:20px;  ">
+
+            <label class="control-label">Roles:</label>
+            <br />
+            @foreach (var item in ViewBag.RoleList)
+            { 
+                <div class="form-check-inline">
+                    <input class="form-check-input" name="Roles" type="checkbox" id="@item" value="@item">
+                    <label class="form-check-label" for="@item">@item</label>
+                </div>
+
+            }
         </div>
+
     </div>
     <input type="submit" value="Create" class="btn btn-primary" />
     <button class="btn btn-secondary" asp-action="ManageUsers">Back</button>

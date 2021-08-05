@@ -1,4 +1,4 @@
-﻿@model PermissionSystemMVC.Models.ViewModels.UserListViewModel
+﻿@model PermissionSystemMVC.Models.ViewModels.EditUserViewModel
 
 @{
     ViewData["Title"] = "Edit User";
@@ -8,40 +8,57 @@
 <h1 class="display-4">Edit user</h1>
 <hr />
 
-<div style="width:50%;">
-
-    <form asp-action="EditUser">
+<form asp-action="EditUser">
+    <div class="form-row">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <input type="hidden" asp-for="Id" />
 
-        <div class="form-group">
+        <div class="form-group col-md-6">
             <label asp-for="Email" class="control-label"></label>
             <input asp-for="Email" class="form-control" />
             <span asp-validation-for="Email" class="text-danger"></span>
-        </div>   
-        
-        <div class="form-group">
+        </div>
+
+        <div class="form-group col-md-6">
             <label asp-for="Name" class="control-label"></label>
             <input asp-for="Name" class="form-control" />
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
 
-        <div class="form-group col-md-6">
-            <label asp-for="Departmentname"></label>
-            <select asp-for="Departmentname" class="form-control" asp-items="ViewBag.DepList"></select>
-            <span asp-validation-for="Departmentname" class="text-danger"></span>
-        </div>
 
         <div class="form-group col-md-6">
-            <label asp-for="Role"></label>
-            <select asp-for="Role" class="form-control" asp-items="ViewBag.RoleList"></select>
-            <span asp-validation-for="Role" class="text-danger"></span>
+            <label asp-for="DepartmentId"></label>
+            <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepList"></select>
+            <span asp-validation-for="DepartmentId" class="text-danger"></span>
+        </div>
+        <div class="form-group col-md-6" style="padding-left:20px;">
+            <label class="control-label">Roles:</label>
+            <br />
+            @foreach (string item in ViewBag.RoleList)
+            {
+                if (Model.Roles.Contains(item))
+                {
+                    <div class="form-check" style="padding-left:10px">
+                        <input class="form-check-input" name="Roles" type="checkbox" id="@item" value="@item" checked>
+                        <label class="form-check-label" for="@item">@item</label>
+                    </div>
+                }
+                else
+                {
+
+                    <div class="form-check" style="padding-left:10px">
+                        <input class="form-check-input" name="Roles" type="checkbox" id="@item" value="@item">
+                        <label class="form-check-label" for="@item">@item</label>
+                    </div>
+                }
+            }
         </div>
 
         <div class="form-group">
             <input type="submit" value="Save" class="btn btn-primary" />
+            <button class="btn btn-secondary" asp-action="ManageUsers">Back</button>
         </div>
-    </form>
-</div>
+    </div>
+</form>
 
 

@@ -52,6 +52,7 @@ namespace PermissionSystemMVC.Controllers
             }
         }
 
+        [Authorize(Roles = "Employee")]
         public IActionResult Create()
         {
             return View();
@@ -59,29 +60,45 @@ namespace PermissionSystemMVC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> Create(ViewRequest request)
         {
             if (ModelState.IsValid)
             {
-                var requestNew = new Request
+                var TotalTime = request.ToTime - request.FromTime;
+
+                if (request.FromTime > request.ToTime)
                 {
-                    PrmisssionType = request.PrmisssionType,
-                    DatePrmission = request.DatePrmission,
-                    FromTime = request.FromTime,
-                    ToTime = request.ToTime,
-                    CreatedById = User.GetUserId(),
-                    CreateDate= request.CreateDate,
-                    Status = request.Status
-                };
-                _context.Request.Add(requestNew);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                    ModelState.AddModelError("", "From Time must be less than To Time");
+                }
+
+                if (request.PrmisssionType == Models.Request.PrmisssionTypeEnum.Personal && TotalTime > 3)
+                {
+                    ModelState.AddModelError("", "Personal leave Time must be less than or equls 3 Hours");
+                }
+
+                if (ModelState.ErrorCount > 0 == false)
+                {
+                    var requestNew = new Request
+                    {
+                        PrmisssionType = request.PrmisssionType,
+                        DatePrmission = request.DatePrmission,
+                        FromTime = request.FromTime,
+                        ToTime = request.ToTime,
+                        CreatedById = User.GetUserId(),
+                        CreateDate = request.CreateDate,
+                        Status = request.Status
+                    };
+                    _context.Request.Add(requestNew);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
             }
 
             return View(request);
         }
 
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Approve(int? id)
         {
             if (id == null)
@@ -101,6 +118,8 @@ namespace PermissionSystemMVC.Controllers
 
         [HttpPost, ActionName("Approve")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Manager")]
+
         public async Task<IActionResult> ApproveConfirmed(int id)
         {
             var request = await _context.Request.FirstOrDefaultAsync(r => r.Id == id);
@@ -122,6 +141,8 @@ namespace PermissionSystemMVC.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize(Roles = "Manager")]
+
         public async Task<IActionResult> Reject(int? id)
         {
             if (id == null)
@@ -138,6 +159,8 @@ namespace PermissionSystemMVC.Controllers
 
         [HttpPost, ActionName("Reject")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Manager")]
+
         public async Task<IActionResult> RejectConfirmed(int id)
         {
             var request = await _context.Request.FirstOrDefaultAsync(r => r.Id == id);

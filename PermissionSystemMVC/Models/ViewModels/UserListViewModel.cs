@@ -14,6 +14,6 @@ namespace PermissionSystemMVC.Models.ViewModels
         public string Email { get; set; }
         [Display(Name ="Department")]
         public string Departmentname { get; set; }
-        public string Role { get; set; }
+        public string Roles { get; set; }
     }
 }

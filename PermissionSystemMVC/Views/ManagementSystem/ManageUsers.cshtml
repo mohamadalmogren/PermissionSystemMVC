@@ -29,19 +29,19 @@
             <thead>
                 <tr>
                     <th>
+                        @Html.DisplayNameFor(model => model.Name)
+                    </th>
+                    <th>
                         @Html.DisplayNameFor(model => model.Username)
                     </th>
                     <th>
                         @Html.DisplayNameFor(model => model.Email)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.Name)
-                    </th>
-                    <th>
                         @Html.DisplayNameFor(model => model.Departmentname)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.Role)
+                        @Html.DisplayNameFor(model => model.Roles)
                     </th>
                     <th></th>
                 </tr>
@@ -51,19 +51,19 @@
                 {
                     <tr>
                         <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
                             @Html.DisplayFor(modelItem => item.Username)
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.Email)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Name)
-                        </td>
-                        <td>
                             @Html.DisplayFor(modelItem => item.Departmentname)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Role)
+                            @Html.DisplayFor(modelItem => item.Roles)
 
                         </td>
                         <td>

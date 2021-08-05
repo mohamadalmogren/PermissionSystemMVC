@@ -8,10 +8,12 @@ using PermissionSystemMVC.Models;
 using PermissionSystemMVC.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using System;
 
 namespace PermissionSystemMVC.Controllers
 {
     [Authorize(Roles = "Admin")]
+
     public class ManagementSystemController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -25,29 +27,33 @@ namespace PermissionSystemMVC.Controllers
 
         public async Task<IActionResult> ManageUsers()
         {
-            //var users = _context.Users.Include(u => u.Department).AsQueryable();
-            //var roles = _context.Roles.Select(x => x.Name);
-            var modle = from users in _context.Users
-                        join userRole in _context.UserRoles on users.Id equals userRole.UserId
-                        join role in _context.Roles on userRole.RoleId equals role.Id
-                        join dep in _context.Departments on users.DepartmentId equals dep.Id
-                        select new UserListViewModel
-                        {
-                            Id = users.Id,
-                            Username = users.UserName,
-                            Email = users.Email,
-                            Name = users.Name,
-                            Departmentname = dep.Name,
-                            Role = role.Name
-                        };
+            var usersList = new List<UserListViewModel>();
+            var users = _context.Users.Include(u => u.Department).ToList();
 
-            return View(modle);
+            foreach (var user in users)
+            {
+                var userRoles = await _userManager.GetRolesAsync(user);
+
+                var userObj = new UserListViewModel
+                {
+                    Id = user.Id,
+                    Username = user.UserName,
+                    Email = user.Email,
+                    Name = user.Name,
+                    Departmentname = user.Department.Name,
+                    Roles = string.Join(',', userRoles)
+                };
+
+                usersList.Add(userObj);
+            }
+
+            return View(usersList);
         }
-
+        
         public IActionResult CreateUsers()
         {
             ViewData["DepList"] = new SelectList(_context.Departments, "Id", "Name");
-            ViewData["RoleList"] = new SelectList(_context.Roles, "Name", "Name");
+            ViewData["RoleList"] = _context.Roles.Select(r => r.Name).ToList();
 
             return View();
         }
@@ -71,9 +77,15 @@ namespace PermissionSystemMVC.Controllers
 
                 var result = await _userManager.CreateAsync(user, model.Password);
 
+                var rolesList = model.Roles;
+
                 if (result.Succeeded)
                 {
-                    _userManager.AddToRoleAsync(user, model.Role).Wait();
+                    foreach (var role in rolesList)
+                    {
+                        _userManager.AddToRoleAsync(user, role).Wait();
+
+                    }
                     return RedirectToAction(nameof(ManageUsers));
 
                 }
@@ -89,6 +101,156 @@ namespace PermissionSystemMVC.Controllers
             ViewData["RoleList"] = new SelectList(_context.Roles, "Name", "Name");
             return View(model);
         }
+        public async Task<IActionResult> EditUser(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            var model = new EditUserViewModel
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Username = user.UserName,
+                Email = user.Email,
+                Roles = userRoles,
+                DepartmentId = user.DepartmentId
+            };
+
+            ViewData["DepList"] = new SelectList(_context.Departments, "Id", "Name");
+            ViewData["RoleList"] = _context.Roles.Select(r => r.Name).ToList();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditUser(EditUserViewModel userToEdit)
+        {
+            var rolesList = _context.Roles.Select(r => r.Name).ToList();
+            var userInDb = await _context.Users.FirstOrDefaultAsync(x => x.Id == userToEdit.Id);
+
+            if (userInDb == null)
+            {
+                return NotFound();
+            }
+
+            var userRolesInDb = await _userManager.GetRolesAsync(userInDb);
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    //user.Email = model.Email; To Do
+                    userInDb.Name = userToEdit.Name;
+                    userInDb.DepartmentId = userToEdit.DepartmentId;
+
+                    foreach (var role in rolesList)
+                    {
+                        if (userRolesInDb.Contains(role) && userToEdit.Roles.Contains(role))
+                        {
+                            continue;
+                        }
+                        if (userRolesInDb.Contains(role) && userToEdit.Roles.Contains(role) == false)
+                        {
+                            var result = await _userManager.RemoveFromRoleAsync(userInDb, role);
+                            if (result.Succeeded == false)
+                            {
+                                foreach (var error in result.Errors)
+                                {
+                                    ModelState.AddModelError(string.Empty, error.Description);
+                                }
+                            }
+                        }
+                        if (userRolesInDb.Contains(role) == false && userToEdit.Roles.Contains(role))
+                        {
+                            var result = await _userManager.AddToRoleAsync(userInDb, role);
+                            if (result.Succeeded == false)
+                            {
+                                foreach (var error in result.Errors)
+                                {
+                                    ModelState.AddModelError(string.Empty, error.Description);
+                                }
+                            }
+                        }
+                    }
+
+                    if (ModelState.ErrorCount > 0 == false)
+                    {
+                        await _context.SaveChangesAsync();
+                        return RedirectToAction(nameof(ManageUsers));
+                    }
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!_context.Users.Any(y => y.Id == userToEdit.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            ViewData["DepList"] = new SelectList(_context.Departments, "Id", "Name");
+            ViewData["RoleList"] = _context.Roles.Select(r => r.Name).ToList();
+            return View(userToEdit);
+        }
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var users = _context.Users.Include(u => u.Department).ToList();
+
+            var user = await _context.Users.Include(u => u.Department).FirstOrDefaultAsync(x => x.Id == id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            var userRolesString = string.Join(',', userRoles);
+
+            var model = new UserListViewModel
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Username = user.UserName,
+                Email = user.Email,
+                Roles = userRolesString,
+                Departmentname = user.Department.Name
+            };
+
+            return View(model);
+        }
+
+        [HttpPost, ActionName("DeleteUser")]
+        [ValidateAntiForgeryToken]
+
+        public async Task<IActionResult> DeleteUserConfirmed(string id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(ManageUsers));
+        }
+
 
         public async Task<IActionResult> ManageDepartments()
         {
@@ -96,10 +258,12 @@ namespace PermissionSystemMVC.Controllers
             return View(departments);
         }
 
+
         public IActionResult CreateDepartment()
         {
             return View();
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -118,34 +282,6 @@ namespace PermissionSystemMVC.Controllers
                 return BadRequest();
             }
         }
-
-        public async Task<IActionResult> DeleteDepartment(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var department = await _context.Departments.FirstOrDefaultAsync(d => d.Id == id);
-
-            if (department == null)
-            {
-                return NotFound();
-            }
-            return View(department);
-        }
-
-        [HttpPost, ActionName("DeleteDepartment")]
-        [ValidateAntiForgeryToken]
-
-        public async Task<IActionResult> DeleteDepartmentConfirmed(int id)
-        {
-            var department = await _context.Departments.FindAsync(id);
-            _context.Departments.Remove(department);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(ManageDepartments));
-        }
-
         public async Task<IActionResult> EditDepartment(int? id)
         {
             if (id == null)
@@ -162,9 +298,9 @@ namespace PermissionSystemMVC.Controllers
             return View(department);
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-
         public async Task<IActionResult> EditDepartment(Department department)
         {
             var dept = await _context.Departments.FindAsync(department.Id);
@@ -196,119 +332,32 @@ namespace PermissionSystemMVC.Controllers
             }
             return View(department);
         }
-        public async Task<IActionResult> DeleteUser(string id)
+
+        public async Task<IActionResult> DeleteDepartment(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var user = await _context.Users.Include(u => u.Department).FirstOrDefaultAsync(x => x.Id == id);
+            var department = await _context.Departments.FirstOrDefaultAsync(d => d.Id == id);
 
-            if (user == null)
+            if (department == null)
             {
                 return NotFound();
             }
-
-            var userRoles = await _userManager.GetRolesAsync(user);
-
-            var userRolesString = string.Join(',', userRoles);
-
-            var model = new UserListViewModel
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Username = user.UserName,
-                Email = user.Email,
-                Role = userRolesString,
-                Departmentname = user.Department.Name
-            };
-
-            return View(model);
+            return View(department);
         }
 
-        [HttpPost, ActionName("DeleteUser")]
+        [HttpPost, ActionName("DeleteDepartment")]
         [ValidateAntiForgeryToken]
-
-        public async Task<IActionResult> DeleteUserConfirmed(string id)
+        public async Task<IActionResult> DeleteDepartmentConfirmed(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            _context.Users.Remove(user);
+            var department = await _context.Departments.FindAsync(id);
+            _context.Departments.Remove(department);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(ManageUsers));
-        }
-
-        public async Task<IActionResult> EditUser(string id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            var user = await _context.Users.Include(u => u.Department).FirstOrDefaultAsync(x => x.Id == id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-            var userRoles = await _userManager.GetRolesAsync(user);
-
-            var userRolesString = string.Join(',', userRoles);
-
-            var model = new UserListViewModel
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Username = user.UserName,
-                Email = user.Email,
-                Role = userRolesString,
-                Departmentname = user.Department.Name
-            };
-
-            ViewData["DepList"] = new SelectList(_context.Departments, "Id", "Name");
-            ViewData["RoleList"] = new SelectList(_context.Roles, "Name", "Name");
-
-            return View(model);
-        }
-
-        //Post not working!
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditUser(UserListViewModel model)
-        {
-            var user = await _context.Users.Include(u=>u.Department)
-                .FirstOrDefaultAsync(x => x.Id ==model.Id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-            var userRole = await _userManager.GetRolesAsync(user);
-            var userRoleString = string.Join(",", userRole);
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    user.Email = model.Email;
-                    user.Name = model.Name;
-                    user.Department.Name = model.Departmentname;
-                    userRoleString = model.Role;
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if(!_context.Users.Any(y => y.Id == model.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(ManageUsers));
-            }
-            return View(model);
-        }
+            return RedirectToAction(nameof(ManageDepartments));
+        }      
 
     }
 }

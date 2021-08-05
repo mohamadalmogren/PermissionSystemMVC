@@ -3,26 +3,24 @@
 @{
     ViewData["Title"] = "Manage Departments";
 }
-
 <h2>Manage Departments</h2>
-
 <br />
 
 <form asp-action="CreateDepartment">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="form-row">
-        <div class="form-group col-md-4">
-            <label for="Name">Department name</label>
-            <input value="" class="form-control" type="text" id="Name" name="Name" required>
+    <div class="form-row align-items-center">
+        <div class="col-auto">
+            <label class="sr-only" for="inlineFormInput">Department name</label>
+            <input value="" class="form-control mb-2" id="inlineFormInput" type="text" id="Name" name="Name" required>
+        </div>
 
+        <div class="col-auto">
+            <input type="submit" value="Create" class="btn btn-primary mb-2" />
         </div>
     </div>
-    <input type="submit" value="Create" class="btn btn-primary" />
 </form>
-
 <br />
-
 
 @if (Model == null)
 {

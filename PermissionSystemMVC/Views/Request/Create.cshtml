@@ -5,37 +5,46 @@
 
 <h1>Create Request</h1>
 
-<a asp-action="Index">back to index page</a>
 <hr />
 
-<div class="row">
-    <form asp-action="Create">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <div class="form-group">
-            <label asp-for="PrmisssionType" class="control-label"></label>
+<form asp-action="Create">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label asp-for="PrmisssionType"></label>
             <select asp-for="PrmisssionType" class="form-control"
                     asp-items="Html.GetEnumSelectList<Request.PrmisssionTypeEnum>()">
             </select>
             <span asp-validation-for="PrmisssionType" class="text-danger"></span>
         </div>
-        <div class="form-group">
+        <div class="form-group col-md-6">
             <label asp-for="DatePrmission" class="control-label"></label>
             <input asp-for="DatePrmission" class="form-control" />
             <span asp-validation-for="DatePrmission" class="text-danger"></span>
         </div>
-        <div class="form-group">
+        <div class="form-group col-md-6">
             <label asp-for="FromTime" class="control-label"></label>
-            <input asp-for="FromTime" class="form-control" />
+            <input asp-for="FromTime" id="FromTime" min="0" max="24" class="form-control"
+                   onchange="document.getElementById('ToTime').min = this.value;" />
             <span asp-validation-for="FromTime" class="text-danger"></span>
         </div>
-        <div class="form-group">
+
+        <div class="form-group col-md-6">
             <label asp-for="ToTime" class="control-label"></label>
-            <input asp-for="ToTime" class="form-control" />
+            <input asp-for="ToTime" id="ToTime" class="form-control" />
             <span asp-validation-for="ToTime" class="text-danger"></span>
         </div>
-        <div class="form-group">
+        <div class="form-group col-md-6">
             <input type="submit" value="Create" class="btn btn-primary" />
-        </div>
+            <button class="btn btn-secondary" asp-action="Index">Back</button>
 
-    </form>
-</div>
+        </div>
+</form>
+
+
+@section Scripts {
+    <script>
+
+
+    </script>
+}
