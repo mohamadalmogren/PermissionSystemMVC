@@ -55,93 +55,67 @@ namespace PermissionSystemMVC.Controllers
         [Authorize(Roles = "Employee")]
         public IActionResult Create()
         {
-            //var timeList = GetTimeList();
-            //ViewData["TimeList"] = new SelectList(GetTimeList(), "value", "text");
             return View();
         }
-
-        //private IEnumerable<SelectListItem> GetTimeList()
-        //{
-        //    List<SelectListItem> timeList = new();
-
-        //    var startHour = 7;
-        //    var cuurentHour = startHour;
-
-        //    var coounter = 0;
-        //    for (int Min = 420; Min <= 1140; Min += 15)
-        //    {
-        //        var timeStr = "";
-        //        switch (coounter)
-        //        {
-        //            case 0:
-        //                timeStr = cuurentHour + ":00";
-        //                break;
-        //            case 1:
-        //                timeStr = cuurentHour + ":15";
-
-        //                break;
-        //            case 2:
-        //                timeStr = cuurentHour + ":30";
-
-        //                break;
-        //            case 3:
-        //                timeStr = cuurentHour + ":45";
-        //                cuurentHour++;
-        //                coounter = -1;
-        //                break;
-
-        //            default:
-        //                break;
-        //        }
-
-
-        //        coounter++;
-        //        var time = new SelectListItem(timeStr, Min.ToString());
-        //        timeList.Add(time);
-        //    }
-
-        //    return timeList;
-        //}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Employee")]
         public async Task<IActionResult> Create(ViewRequest request)
         {
+
+            var nowYear = DateTime.Now.Year;
+            var nowMonth = DateTime.Now.Month;
+            var nowDay = DateTime.Now.Day;
+
+            var requestsThisMonth = await  _context.Request.Where(i => i.CreatedById == User.GetUserId())
+                .Where(d => d.CreateDate.Year == nowYear && d.CreateDate.Month == nowMonth &&
+                d.PrmisssionType == Models.Request.PrmisssionTypeEnum.Personal &&
+                d.Status == Models.Request.PrmisssionStatusEnum.New &&
+                d.Status == Models.Request.PrmisssionStatusEnum.Approved).ToListAsync();
+
+            var requestsThisDay =  requestsThisMonth
+                .Where(d => d.CreateDate.Date == request.DatePrmission.Date).ToList();
+
+            if (requestsThisDay.Any())
+            {
+                ModelState.AddModelError("", "You have Personal Request in this Day");
+            }
+
+            if (requestsThisMonth.Count >= 4)
+            {
+                ModelState.AddModelError("", "You have Personal Requests 4 Time in this month");
+            }
+
+            var TotalTime = request.ToTime - request.FromTime;
+
+            if (request.FromTime >= request.ToTime)
+            {
+                ModelState.AddModelError("", "From Time must be less than To Time");
+            }
+
+            if (request.PrmisssionType == Models.Request.PrmisssionTypeEnum.Personal && TotalTime > 180)
+            {
+                ModelState.AddModelError("", "Personal leave Time must be less than or equls 3 Hours");
+            }
+
             if (ModelState.IsValid)
             {
-                //var TotalTime = request.ToTime - request.FromTime;
-
-                //if (request.FromTime > request.ToTime)
-                //{
-                //    ModelState.AddModelError("", "From Time must be less than To Time");
-                //}
-                //if (request.PrmisssionType == Models.Request.PrmisssionTypeEnum.Personal && TotalTime > 3)
-
-                if (request.PrmisssionType == Models.Request.PrmisssionTypeEnum.Personal)
+                var timeFrom = request.DatePrmission.AddMinutes(request.FromTime);
+                var timeTo = request.DatePrmission.AddMinutes(request.ToTime);
+                var requestNew = new Request
                 {
-                    ModelState.AddModelError("", "Personal leave Time must be less than or equls 3 Hours");
-                }
-
-                var timeFrom = request.DatePrmission.AddHours(double.Parse(request.FromTime));
-                var timeTo = request.DatePrmission.AddHours(double.Parse(request.ToTime));
-
-                if (ModelState.ErrorCount > 0 == false)
-                {
-                    var requestNew = new Request
-                    {
-                        PrmisssionType = request.PrmisssionType,
-                        DatePrmission = request.DatePrmission,
-                        FromTime = timeFrom,
-                        ToTime = timeTo,
-                        CreatedById = User.GetUserId(),
-                        CreateDate = request.CreateDate,
-                        Status = request.Status
-                    };
-                    _context.Request.Add(requestNew);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
+                    PrmisssionType = request.PrmisssionType,
+                    DatePrmission = request.DatePrmission,
+                    FromTime = timeFrom,
+                    ToTime = timeTo,
+                    CreatedById = User.GetUserId(),
+                    CreateDate = request.CreateDate,
+                    Status = request.Status
+                };
+                _context.Request.Add(requestNew);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
 
             return View(request);
@@ -208,7 +182,7 @@ namespace PermissionSystemMVC.Controllers
 
         [HttpPost, ActionName("Reject")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Employee")]
 
         public async Task<IActionResult> RejectConfirmed(int id)
         {
@@ -226,6 +200,44 @@ namespace PermissionSystemMVC.Controllers
             }
 
             request.Status = Models.Request.PrmisssionStatusEnum.Rejected;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+        public async Task<IActionResult> Cancel(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var request = await _context.Request.FirstOrDefaultAsync(r => r.Id == id);
+            if (request == null)
+            {
+                return NotFound();
+            }
+            return View(request);
+        }
+
+        [HttpPost, ActionName("Cancel")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Employee")]
+
+        public async Task<IActionResult> CancelConfirmed(int id)
+        {
+            var request = await _context.Request.FirstOrDefaultAsync(r => r.Id == id);
+
+            if (request == null)
+            {
+                return NotFound();
+            }
+
+
+            if (Equals(request.Status, Models.Request.PrmisssionStatusEnum.New) == false)
+            {
+                return BadRequest();
+            }
+
+            request.Status = Models.Request.PrmisssionStatusEnum.Canceled;
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Index");

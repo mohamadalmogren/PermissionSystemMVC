@@ -29,9 +29,9 @@ else
                         @Html.DisplayNameFor(model => model.CreatedById)
                     </th>
                 }
-                <th>
-                    @Html.DisplayNameFor(model => model.PrmisssionType)
-                </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PrmisssionType)
+            </th>
                 <th>
                     @Html.DisplayNameFor(model => model.DatePrmission)
                 </th>
@@ -57,15 +57,14 @@ else
                     @if (User.IsInRole(RolesName.Manager))
                     {
                         <td>
-                            @Html.DisplayFor(modelItem => item.CreatedBy.Name)
+                            @item.CreatedBy.Name
                         </td>
                     }
                     <td>
-                        @Html.DisplayFor(modelItem => item.PrmisssionType)
+                        @item.PrmisssionType
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.DatePrmission)
-
+                        @item.DatePrmission
                     </td>
                     <td>
                         @*@Html.DisplayFor(modelItem => item.FromTime.ToString("HH:mm"))*@
@@ -74,10 +73,9 @@ else
                     <td>
                         @*@Html.DisplayFor(modelItem => item.ToTime)*@
                         @item.ToTime.ToString("HH:mm")
-                        @DateTime.Today.AddMinutes(450).ToString()
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.CreateDate)
+                        @item.CreateDate.ToString("dd/MM/yyyy")
                     </td>
                     <td>
                         @if (User.IsInRole(RolesName.Manager) && string.Equals(item.Status, Request.PrmisssionStatusEnum.New))
@@ -87,9 +85,16 @@ else
                         }
                         else
                         {
-                            @Html.DisplayFor(modelItem => item.Status)
+                            @item.Status
                         }
                     </td>
+                        @if (User.IsInRole(RolesName.Employee) && string.Equals(item.Status, Request.PrmisssionStatusEnum.New))
+                         {
+                            <td>
+                                <a class="btn btn-danger" asp-action="Cancel" asp-route-id="@item.Id">Cancel</a>
+
+                            </td>
+                         }
                 </tr>
             }
 

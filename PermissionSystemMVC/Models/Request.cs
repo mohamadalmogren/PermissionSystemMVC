@@ -17,7 +17,8 @@ namespace PermissionSystemMVC.Models
         {
             New,
             Approved,
-            Rejected
+            Rejected,
+            Canceled
         }
 
         public int Id { get; set; }
@@ -26,6 +27,7 @@ namespace PermissionSystemMVC.Models
 
         [DataType(DataType.Date)]
         [Display(Name = "Prmisssion Date")]
+
         public DateTime DatePrmission { get; set; }
 
         public DateTime FromTime { get; set; }

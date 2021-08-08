@@ -18,15 +18,13 @@ namespace PermissionSystemMVC.Models.ViewModels
         public DateTime DatePrmission { get; set; }
 
         [Display(Name = "From Time")]
-        public string FromTime { get; set; }
+        public int FromTime { get; set; }
 
         [Display(Name = "To Time")]
-        public string ToTime { get; set; }
+        public int ToTime { get; set; }
 
         [Display(Name = "Created Date")]
         public DateTime CreateDate { get; set; } = DateTime.Now;
         public Request.PrmisssionStatusEnum Status { get; set; } = Request.PrmisssionStatusEnum.New;
-
-        public int TotalTime { get; set; }
     }
 }
