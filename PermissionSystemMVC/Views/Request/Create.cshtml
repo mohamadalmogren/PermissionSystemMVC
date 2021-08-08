@@ -10,6 +10,7 @@
 <form asp-action="Create">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-row">
+
         <div class="form-group col-md-6">
             <label asp-for="PrmisssionType"></label>
             <select asp-for="PrmisssionType" class="form-control"
@@ -17,34 +18,80 @@
             </select>
             <span asp-validation-for="PrmisssionType" class="text-danger"></span>
         </div>
+
         <div class="form-group col-md-6">
             <label asp-for="DatePrmission" class="control-label"></label>
             <input asp-for="DatePrmission" class="form-control" />
             <span asp-validation-for="DatePrmission" class="text-danger"></span>
         </div>
+
         <div class="form-group col-md-6">
             <label asp-for="FromTime" class="control-label"></label>
-            <input asp-for="FromTime" id="FromTime" min="0" max="24" class="form-control"
-                   onchange="document.getElementById('ToTime').min = this.value;" />
-            <span asp-validation-for="FromTime" class="text-danger"></span>
+            <select asp-for="FromTime" class="form-control"></select>
+            <span asp-validation-for="FromTime" class="text-danger" ></span>        
         </div>
 
         <div class="form-group col-md-6">
             <label asp-for="ToTime" class="control-label"></label>
-            <input asp-for="ToTime" id="ToTime" class="form-control" />
+            <select asp-for="ToTime" class="form-control"></select>
             <span asp-validation-for="ToTime" class="text-danger"></span>
         </div>
+
         <div class="form-group col-md-6">
             <input type="submit" value="Create" class="btn btn-primary" />
             <button class="btn btn-secondary" asp-action="Index">Back</button>
 
         </div>
+    </div>
 </form>
 
 
 @section Scripts {
+
     <script>
 
+        $(document).ready(function () {
 
-    </script>
+            var startHour = 7;
+            var endHour = 19;
+            var cuurentHour = startHour;
+
+            var coounter = 0;
+            for (j = 420; j <= 1140; j = j + 15) {
+                var timeStr = "";
+                switch (coounter) {
+                    case 0:
+                        timeStr = cuurentHour + ":00";
+                        break;
+                    case 1:
+                        timeStr = cuurentHour + ":15";
+
+                        break;
+                    case 2:
+                        timeStr = cuurentHour + ":30";
+
+                        break;
+                    case 3:
+                        timeStr = cuurentHour + ":45";
+                        cuurentHour++;
+                        coounter = -1;
+                        break;
+
+                    default:
+                        break;
+                }
+                coounter++;
+
+                //console.log("Min:" + j + " - " + timeStr);
+
+                var opt = document.createElement('option');
+                opt.value = j;
+                opt.innerHTML = timeStr;
+
+                document.getElementById("FromTime").appendChild(opt);
+                document.getElementById("ToTime").appendChild(opt.cloneNode(true));
+
+            }
+        });
+    </script>>
 }

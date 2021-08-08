@@ -55,8 +55,53 @@ namespace PermissionSystemMVC.Controllers
         [Authorize(Roles = "Employee")]
         public IActionResult Create()
         {
+            //var timeList = GetTimeList();
+            //ViewData["TimeList"] = new SelectList(GetTimeList(), "value", "text");
             return View();
         }
+
+        //private IEnumerable<SelectListItem> GetTimeList()
+        //{
+        //    List<SelectListItem> timeList = new();
+
+        //    var startHour = 7;
+        //    var cuurentHour = startHour;
+
+        //    var coounter = 0;
+        //    for (int Min = 420; Min <= 1140; Min += 15)
+        //    {
+        //        var timeStr = "";
+        //        switch (coounter)
+        //        {
+        //            case 0:
+        //                timeStr = cuurentHour + ":00";
+        //                break;
+        //            case 1:
+        //                timeStr = cuurentHour + ":15";
+
+        //                break;
+        //            case 2:
+        //                timeStr = cuurentHour + ":30";
+
+        //                break;
+        //            case 3:
+        //                timeStr = cuurentHour + ":45";
+        //                cuurentHour++;
+        //                coounter = -1;
+        //                break;
+
+        //            default:
+        //                break;
+        //        }
+
+
+        //        coounter++;
+        //        var time = new SelectListItem(timeStr, Min.ToString());
+        //        timeList.Add(time);
+        //    }
+
+        //    return timeList;
+        //}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -65,17 +110,21 @@ namespace PermissionSystemMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                var TotalTime = request.ToTime - request.FromTime;
+                //var TotalTime = request.ToTime - request.FromTime;
 
-                if (request.FromTime > request.ToTime)
-                {
-                    ModelState.AddModelError("", "From Time must be less than To Time");
-                }
+                //if (request.FromTime > request.ToTime)
+                //{
+                //    ModelState.AddModelError("", "From Time must be less than To Time");
+                //}
+                //if (request.PrmisssionType == Models.Request.PrmisssionTypeEnum.Personal && TotalTime > 3)
 
-                if (request.PrmisssionType == Models.Request.PrmisssionTypeEnum.Personal && TotalTime > 3)
+                if (request.PrmisssionType == Models.Request.PrmisssionTypeEnum.Personal)
                 {
                     ModelState.AddModelError("", "Personal leave Time must be less than or equls 3 Hours");
                 }
+
+                var timeFrom = request.DatePrmission.AddHours(double.Parse(request.FromTime));
+                var timeTo = request.DatePrmission.AddHours(double.Parse(request.ToTime));
 
                 if (ModelState.ErrorCount > 0 == false)
                 {
@@ -83,8 +132,8 @@ namespace PermissionSystemMVC.Controllers
                     {
                         PrmisssionType = request.PrmisssionType,
                         DatePrmission = request.DatePrmission,
-                        FromTime = request.FromTime,
-                        ToTime = request.ToTime,
+                        FromTime = timeFrom,
+                        ToTime = timeTo,
                         CreatedById = User.GetUserId(),
                         CreateDate = request.CreateDate,
                         Status = request.Status
@@ -181,6 +230,5 @@ namespace PermissionSystemMVC.Controllers
 
             return RedirectToAction("Index");
         }
-
     }
 }

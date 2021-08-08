@@ -26,17 +26,14 @@ namespace PermissionSystemMVC.Models
 
         [DataType(DataType.Date)]
         [Display(Name = "Prmisssion Date")]
-
         public DateTime DatePrmission { get; set; }
-        [Display(Name = "From Time")]
 
-        public int FromTime { get; set; }
-        [Display(Name = "To Time")]
+        public DateTime FromTime { get; set; }
 
-        public int ToTime { get; set; }
+        public DateTime ToTime { get; set; }
         public PrmisssionStatusEnum Status { get; set; }
         public AppUser CreatedBy { get; set; }
-        [Display(Name ="Employee")]
+        [Display(Name = "Employee")]
         public string CreatedById { get; set; }
         public AppUser ModifiedBy { get; set; }
         public string ModifiedById { get; set; }

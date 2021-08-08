@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PermissionSystemMVC.Models;
 
 namespace PermissionSystemMVC.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210805104547_AddTimePicker")]
+    partial class AddTimePicker
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -258,8 +260,8 @@ namespace PermissionSystemMVC.Migrations
                     b.Property<DateTime>("DatePrmission")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("FromTime")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("FromTime")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ModifiedById")
                         .HasColumnType("nvarchar(450)");
@@ -272,8 +274,8 @@ namespace PermissionSystemMVC.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("ToTime")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("ToTime")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

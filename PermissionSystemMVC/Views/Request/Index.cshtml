@@ -68,12 +68,13 @@ else
 
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.FromTime)
-
+                        @*@Html.DisplayFor(modelItem => item.FromTime.ToString("HH:mm"))*@
+                        @item.FromTime.ToString("HH:mm")
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ToTime)
-
+                        @*@Html.DisplayFor(modelItem => item.ToTime)*@
+                        @item.ToTime.ToString("HH:mm")
+                        @DateTime.Today.AddMinutes(450).ToString()
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.CreateDate)
@@ -94,4 +95,12 @@ else
 
         </tbody>
     </table>
+}
+
+@section Scripts {
+
+    <script>
+
+    </script>>
+
 }
