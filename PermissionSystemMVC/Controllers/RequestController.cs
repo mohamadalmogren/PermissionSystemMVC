@@ -10,6 +10,8 @@ using PermissionSystemMVC.Models.ViewModels;
 using PermissionSystemMVC.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace PermissionSystemMVC.Controllers
 {
@@ -52,6 +54,38 @@ namespace PermissionSystemMVC.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<ActionResult> GetAllRequests()
+        {
+            var retrunList = new List<ListRequestViewModel>();
+
+            var requests = await _context.Request
+                .Include(r => r.CreatedBy)
+                .Where(r => r.CreatedById == User.GetUserId()).ToListAsync();
+            foreach (var item in requests)
+            {
+                retrunList.Add(new ListRequestViewModel
+                {
+                    Id= item.Id.ToString(),
+                    CreatedBy = item.CreatedBy.Name,
+                    PrmisssionType = item.PrmisssionType.ToString(),
+                    DatePrmission = item.DatePrmission.ToString("dd/MM/yyyy"),
+                    FromTime = item.FromTime.ToString("HH:mm"),
+                    ToTime = item.ToTime.ToString("HH:mm"),
+                    CreateDate = item.CreateDate.ToString("dd/MM/yyyy"),
+                    Status = item.Status.ToString()
+                });
+            }
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Converters = { new JsonStringEnumConverter() },
+            };
+
+            return Json(retrunList, options);
+        }
+
+
         [Authorize(Roles = "Employee")]
         public IActionResult Create()
         {
@@ -64,28 +98,55 @@ namespace PermissionSystemMVC.Controllers
         public async Task<IActionResult> Create(ViewRequest request)
         {
 
-            var nowYear = DateTime.Now.Year;
-            var nowMonth = DateTime.Now.Month;
-            var nowDay = DateTime.Now.Day;
+            var nowYear = request.DatePrmission.Year;
+            var nowMonth = request.DatePrmission.Month;
+            var nowDay = request.DatePrmission.Day;
 
-            var requestsThisMonth = await  _context.Request.Where(i => i.CreatedById == User.GetUserId())
-                .Where(d => d.CreateDate.Year == nowYear && d.CreateDate.Month == nowMonth &&
-                d.PrmisssionType == Models.Request.PrmisssionTypeEnum.Personal &&
-                d.Status == Models.Request.PrmisssionStatusEnum.New &&
+            var requestsThisMonth = await _context.Request.Where(i => i.CreatedById == User.GetUserId())
+                .Where(d => d.DatePrmission.Year == nowYear && d.DatePrmission.Month == nowMonth &&
+                d.Status == Models.Request.PrmisssionStatusEnum.New ||
                 d.Status == Models.Request.PrmisssionStatusEnum.Approved).ToListAsync();
 
-            var requestsThisDay =  requestsThisMonth
-                .Where(d => d.CreateDate.Date == request.DatePrmission.Date).ToList();
+            var personalRequesMonth = requestsThisMonth.Where(
+                p => p.PrmisssionType == Models.Request.PrmisssionTypeEnum.Personal).ToList();
 
-            if (requestsThisDay.Any())
-            {
-                ModelState.AddModelError("", "You have Personal Request in this Day");
-            }
+            var requestsThisDay = requestsThisMonth
+                .Where(d => d.DatePrmission.Date == request.DatePrmission.Date).ToList();
 
-            if (requestsThisMonth.Count >= 4)
+            var requestThisDayPersonal = requestsThisDay.Where(p => p.PrmisssionType == Models.Request.PrmisssionTypeEnum.Personal).ToList();
+
+
+            if (personalRequesMonth.Count >= 4)
             {
                 ModelState.AddModelError("", "You have Personal Requests 4 Time in this month");
             }
+
+            if (requestsThisDay.Any())
+            {
+                for (int i = 0; i < requestsThisDay.Count; i++)
+                {
+
+                    var FromTimeDb = requestsThisDay[i].FromTime;
+                    var ToTimeDb = requestsThisDay[i].ToTime;
+
+                    var MinutesFromTimeDb = (FromTimeDb.Hour * 60) + FromTimeDb.Minute;
+                    var MinutesToTimeDb = (ToTimeDb.Hour * 60) + ToTimeDb.Minute;
+
+                    if (request.FromTime <= MinutesToTimeDb && request.FromTime >= MinutesFromTimeDb ||
+                        request.ToTime >= MinutesFromTimeDb && request.ToTime <= MinutesToTimeDb)
+                    {
+                        ModelState.AddModelError("", "You have Request in this time");
+                    }
+
+                    if (requestThisDayPersonal[i].PrmisssionType == Models.Request.PrmisssionTypeEnum.Personal &&
+                        request.PrmisssionType == Models.Request.PrmisssionTypeEnum.Personal)
+                    {
+                        ModelState.AddModelError("", "You have Personal Request in this Day");
+                    }
+
+                }
+            }
+
 
             var TotalTime = request.ToTime - request.FromTime;
 
@@ -182,7 +243,7 @@ namespace PermissionSystemMVC.Controllers
 
         [HttpPost, ActionName("Reject")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Employee")]
+        [Authorize(Roles = "Manager")]
 
         public async Task<IActionResult> RejectConfirmed(int id)
         {
