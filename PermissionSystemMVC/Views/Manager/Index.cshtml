@@ -1,0 +1,150 @@
+﻿@model IEnumerable<PermissionSystemMVC.Models.Request>
+
+@{
+    ViewData["Title"] = "Manager Index";
+}
+
+<div class="row">
+    <div class="col-10">
+        <h2>Requests</h2>
+    </div>
+</div>
+
+<br />
+
+@if (Model == null)
+{
+    <span> NO Data !</span>
+}
+else
+{
+    <table id="data-table" class="class=" display nowrap" width="100%">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.CreatedById)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.PrmisssionType)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DatePrmission)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FromTime)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ToTime)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CreateDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>
+                <th>Action</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        
+    </table>
+}
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+
+            var myTable = $("#data-table").DataTable({
+                "ajax": {
+                    "url": 'Manager/GetAllRequests',
+                    "type": 'get',
+                    "datatype": 'json'
+                },
+                "columns": [
+                    { "data": "createdBy" },
+                    { "data": "prmisssionType" },
+                    { "data": "datePrmission" },
+                    { "data": "fromTime" },
+                    { "data": "toTime" },
+                    { "data": "createDate" },
+                    { "data": "status" },
+                    {
+                        "data": "id",
+                        "render": function (data, type) {
+                            return '<button class="btn btn-success" onclick="Approve(' + data + ')">Approve</button>'
+                        }
+                    },
+                    {
+                        "data": "id",
+                        "render": function (data, type) {
+                            return '<button class="btn btn-danger" onclick="Reject(' + data + ')">Reject</button>'
+                        }
+
+                    }
+                ]
+            });
+            
+        });
+
+        function Approve(id) {
+            bootbox.confirm({
+                size: "small",
+                message: "Are you sure you want to approve the request?",
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            type: "POST",
+                            url: "Manager/ApproveRequest",
+                            data: { Id: id },
+                            dataType: "json",
+                            success: function (data) {
+
+                                if (data.resulte) {
+                                    toastr.success(data.msg, 'Done');
+                                    $('#data-table').DataTable().ajax.reload();
+                                }
+                                else {
+                                    toastr.error(data.msg, 'Error');
+                                }
+                            },
+                            error: function (req, status, error) {
+                                alert(error);
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        function Reject(id) {
+            bootbox.confirm({
+                size: "small",
+                message: "Are you sure you want to reject this request?",
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            type: "POST",
+                            url: "Manager/RejectRequest",
+                            data: { Id: id },
+                            dataType: "json",
+                            success: function (data) {
+
+                                if (data.resulte) {
+                                    toastr.success(data.msg, 'Done');
+                                    $('#data-table').DataTable().ajax.reload();
+                                }
+                                else {
+                                    toastr.error(data.msg, 'Error');
+                                }
+                            },
+                            error: function (req, status, error) {
+                                alert(error);
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+    </script>
+
+}

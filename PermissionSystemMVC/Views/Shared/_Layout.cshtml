@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="~/lib/DataTables/css/dataTables.dataTables.min.css" />
-    <link rel="stylesheet" href="~/lib/DataTables/css/dataTables.responsive.min.css" />
     <link rel="stylesheet" href="~/lib/toastr/css/toastr.css" />
 
 </head>
@@ -27,12 +26,22 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         @*<li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                            </li>*@
+            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </li>*@
+                        @if (User.IsInRole(RolesName.Employee))
+                        {
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Request" asp-action="Index">Request</a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="Index">Request</a>
+                            </li>
+                        }
+                        @if (User.IsInRole(RolesName.Manager))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Manager" asp-action="Index">Request</a>
+                            </li>
+                        }
+
 
                         @if (User.IsInRole(RolesName.Admin))
                         {
@@ -68,7 +77,6 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <script src="~/lib/DataTables/js/jquery.dataTables.min.js"></script>
-    <script src="~/lib/DataTables/js/dataTables.responsive.min.js"></script>
     <script src="~/lib/BootBox/js/bootbox.js"></script>
     <script src="~/lib/toastr/js/toastr.min.js"></script>
 
