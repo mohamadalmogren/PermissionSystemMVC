@@ -101,28 +101,31 @@ else
 
     <script>
         $(document).ready(function () {
-            $.getJSON("Request/GetAllRequests", function (data) {
 
-                $('#data-table').DataTable({
-                    "data": data,
-                    columns: [
-                        { "data": "createdBy" },
-                        { "data": "prmisssionType" },
-                        { "data": "datePrmission" },
-                        { "data": "fromTime" },
-                        { "data": "toTime" },
-                        { "data": "createDate" },
-                        { "data": "status" },
-                        {
-                            "data": "id",
-                            "render": function (data, type) {
-                                console.log(data)
-                                return '<button class="btn btn-danger" onclick="Cancel(' + data + ')">Cancel</button>'
-                            }
+            var myTable = $("#data-table").DataTable({
+                "ajax": {
+                    "url": 'Request/GetAllRequests',
+                    "type": 'get',
+                    "datatype": 'json'
+                },
+                "columns": [
+                    { "data": "createdBy" },
+                    { "data": "prmisssionType" },
+                    { "data": "datePrmission" },
+                    { "data": "fromTime" },
+                    { "data": "toTime" },
+                    { "data": "createDate" },
+                    { "data": "status" },
+                    {
+                        "data": "id",
+                        "render": function (data, type) {
+                            return '<button class="btn btn-danger" onclick="Cancel(' + data + ')">Cancel</button>'
                         }
-                    ]
-                });
+
+                    }
+                ]
             });
+            
         });
 
         function Cancel(id) {
@@ -137,12 +140,12 @@ else
                             data: { Id: id },
                             dataType: "json",
                             success: function (data) {
-                                console.log(data);
+
                                 if (data.resulte) {
                                     toastr.success(data.msg, 'Done');
-                                    setTimeout(location.reload.bind(location), 3000);
-
-                                } else {
+                                    $('#data-table').DataTable().ajax.reload();
+                                }
+                                else {
                                     toastr.error(data.msg, 'Error');
                                 }
                             },
@@ -154,6 +157,7 @@ else
                 }
             });
         }
+        
     </script>
 
 }

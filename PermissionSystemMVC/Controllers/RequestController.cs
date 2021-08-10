@@ -82,7 +82,7 @@ namespace PermissionSystemMVC.Controllers
                 Converters = { new JsonStringEnumConverter() },
             };
 
-            return Json(retrunList, options);
+            return Json(new { data = retrunList }, options);
         }
 
 
