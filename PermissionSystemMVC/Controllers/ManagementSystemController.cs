@@ -9,6 +9,8 @@ using PermissionSystemMVC.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace PermissionSystemMVC.Controllers
 {
@@ -49,7 +51,7 @@ namespace PermissionSystemMVC.Controllers
 
             return View(usersList);
         }
-        
+
         public IActionResult CreateUsers()
         {
             ViewData["DepList"] = new SelectList(_context.Departments, "Id", "Name");
@@ -258,6 +260,29 @@ namespace PermissionSystemMVC.Controllers
             return View(departments);
         }
 
+        [HttpGet]
+        public async Task<ActionResult> GetAllDepartments()
+        {
+            var retrunList = new List<ListDepartmentViewModel>();
+
+            var departments = await _context.Departments.ToListAsync();
+
+            foreach (var item in departments)
+            {
+                retrunList.Add(new ListDepartmentViewModel
+                {
+                    Id = item.Id.ToString(),
+                    Name = item.Name
+                });
+            }
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            return Json(new { data = retrunList }, options);
+        }
+
 
         public IActionResult CreateDepartment()
         {
@@ -357,7 +382,14 @@ namespace PermissionSystemMVC.Controllers
             _context.Departments.Remove(department);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(ManageDepartments));
-        }      
+        }
+        public async Task<IActionResult> Delete(int id)
+        {
+            var department = await _context.Departments.FindAsync(id);
+            _context.Departments.Remove(department);
+            await _context.SaveChangesAsync();
+            return Json(new { resulte = true, msg = "Department Deleted!" });
 
+        }
     }
 }
