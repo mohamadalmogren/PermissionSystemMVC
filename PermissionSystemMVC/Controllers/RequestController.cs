@@ -303,5 +303,29 @@ namespace PermissionSystemMVC.Controllers
 
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        [Authorize(Roles = "Employee")]
+        public async Task<JsonResult> CancelRequest(int id)
+        {
+            var request = await _context.Request.FirstOrDefaultAsync(r => r.Id == id);
+
+            if (request == null)
+            {
+                return Json (new { resulte = false, msg = "Request Not Found!" });
+            }
+
+
+            if (Equals(request.Status, Models.Request.PrmisssionStatusEnum.New) == false)
+            {
+                return Json(new { resulte = false, msg = "You cannot Cancel this !!" });
+
+            }
+
+            request.Status = Models.Request.PrmisssionStatusEnum.Canceled;
+            await _context.SaveChangesAsync();
+
+            return Json(new { resulte = true, msg = "Request Canceled!" });
+        }
     }
 }

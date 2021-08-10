@@ -21,7 +21,7 @@
 }
 else
 {
-    <table id="data-table" class="table" width="100%">
+    <table id="data-table" class="class=" display nowrap" width="100%">
         <thead>
             <tr>
                 <th>
@@ -45,7 +45,7 @@ else
                 <th>
                     @Html.DisplayNameFor(model => model.Status)
                 </th>
-                <th></th>
+                <th>Cancel</th>
             </tr>
         </thead>
         @*<tbody>
@@ -97,14 +97,12 @@ else
                 </tbody>*@
     </table>
 }
-<a href=""></a>
 @section Scripts {
 
     <script>
-
         $(document).ready(function () {
             $.getJSON("Request/GetAllRequests", function (data) {
-                console.log(data);
+
                 $('#data-table').DataTable({
                     "data": data,
                     columns: [
@@ -119,18 +117,43 @@ else
                             "data": "id",
                             "render": function (data, type) {
                                 console.log(data)
-                                //return '<a href="Request/Cancel/' + data + '" class="btn btn-danger" >Cancel</a>'
-                                return '<a href="Request/Cancel/' + data + '" class="btn btn-danger" >Cancel</a>'
+                                return '<button class="btn btn-danger" onclick="Cancel(' + data + ')">Cancel</button>'
                             }
                         }
                     ]
-
                 });
             });
         });
 
+        function Cancel(id) {
+            bootbox.confirm({
+                size: "small",
+                message: "Are you sure?",
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            type: "POST",
+                            url: "Request/CancelRequest",
+                            data: { Id: id },
+                            dataType: "json",
+                            success: function (data) {
+                                console.log(data);
+                                if (data.resulte) {
+                                    toastr.success(data.msg, 'Done');
+                                    setTimeout(location.reload.bind(location), 3000);
 
-
+                                } else {
+                                    toastr.error(data.msg, 'Error');
+                                }
+                            },
+                            error: function (req, status, error) {
+                                alert(error);
+                            }
+                        });
+                    }
+                }
+            });
+        }
     </script>
 
 }

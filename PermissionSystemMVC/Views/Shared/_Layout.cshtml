@@ -7,10 +7,8 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="~/lib/DataTables/css/dataTables.dataTables.min.css" />
-
-    @*<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />*@
-    @*<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" />*@
-
+    <link rel="stylesheet" href="~/lib/DataTables/css/dataTables.responsive.min.css" />
+    <link rel="stylesheet" href="~/lib/toastr/css/toastr.css" />
 
 </head>
 <body>
@@ -68,11 +66,14 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/lib/DataTables/js/jquery.dataTables.min.js"></script>
-    @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>*@
 
-    @*<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>*@
-    @*<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>*@
+    <script src="~/lib/DataTables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/DataTables/js/dataTables.responsive.min.js"></script>
+    <script src="~/lib/BootBox/js/bootbox.js"></script>
+    <script src="~/lib/toastr/js/toastr.min.js"></script>
+
+
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
