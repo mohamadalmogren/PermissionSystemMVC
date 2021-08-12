@@ -67,13 +67,53 @@ namespace PermissionSystemMVC.Controllers
             return Json(new { data = retrunList }, options);
         }
 
-        public IActionResult Create()
+        [HttpGet]
+        public async Task<ActionResult> GetRequestsForCreate()
+        {
+            var retrunList = new List<ListRequestViewModel>();
+
+            var requests = await _context.Request
+                .Include(r => r.CreatedBy)
+                .Where(r => r.CreatedById == User.GetUserId())
+                .Where(r => r.DatePrmission.Month == DateTime.Now.Month)
+                .Where(r => r.PrmisssionType == Models.Request.PrmisssionTypeEnum.Personal)
+                .Where(r => r.Status == Models.Request.PrmisssionStatusEnum.Approved 
+                || r.Status == Models.Request.PrmisssionStatusEnum.New)
+                .ToListAsync();
+
+            
+            foreach (var item in requests)
+            {
+                var TotalFromTime = (item.FromTime.Hour * 60) + item.FromTime.Minute;
+                var TotalToTime = (item.ToTime.Hour * 60) + item.ToTime.Minute;
+                
+                retrunList.Add(new ListRequestViewModel
+                {
+                    Id = item.Id.ToString(),
+                    PrmisssionType = item.PrmisssionType.ToString(),
+                    DatePrmission = item.DatePrmission.ToString("dd/MM/yyyy"),
+                    FromTime = TotalFromTime.ToString(),
+                    ToTime = TotalToTime.ToString(),
+                    Status = item.Status.ToString()
+                });
+            }
+  
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Converters = { new JsonStringEnumConverter() },
+            };
+            return Json(new { list = retrunList, numberOfRequests = retrunList.Count }, options);
+
+        }
+
+        public IActionResult CreateRequest()
         {
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(ViewRequest request)
+        public async Task<IActionResult> CreateRequest(ViewRequest request)
         {
 
             var nowYear = request.DatePrmission.Year;

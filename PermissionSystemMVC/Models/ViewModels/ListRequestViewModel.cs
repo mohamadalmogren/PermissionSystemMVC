@@ -12,6 +12,7 @@ namespace PermissionSystemMVC.Models.ViewModels
         [Display(Name = "Employee")]
         public string CreatedBy { get; set; }
 
+
         [Display(Name = "Prmisssion Type")]
         public string PrmisssionType { get; set; }
 
