@@ -14,67 +14,103 @@
 
 <br />
 
-<div class="row">
 
-    @if (Model == null)
-    {
+@if (Model == null)
+{
 
-        <div class="alert alert-primary" role="alert">
-            <span> No Users Added ! </span>
-        </div>
-    }
-    else
-    {
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Name)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Username)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Email)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Departmentname)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Roles)
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Name)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Username)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Email)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Departmentname)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Roles)
+    <div class="alert alert-primary" role="alert">
+        <span> No Users Added ! </span>
+    </div>
+}
+else
+{
+    <table id="data-table" class="table" width="100%">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Username)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Email)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Departmentname)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Roles)
+                </th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
 
-                        </td>
-                        <td>
-                            <a class="btn btn-primary" asp-action="EditUser" asp-route-id="@item.Id">Edit</a>
-                            <a class="btn btn-danger" asp-action="DeleteUser" asp-route-id="@item.Id">Delete</a>
-                        </td>
-                    </tr>
+    </table>
+}
+
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+            var otable = $("#data-table").DataTable({
+                "ajax": {
+                    "url": '/ManagementSystem/GetAllUsers',
+                    "type": 'get',
+                    "datatype": 'json'
+                },
+                "columns": [
+                    { "data": "name" },
+                    { "data": "username" },
+                    { "data": "email" },
+                    { "data": "departmentname" },
+                    { "data": "roles" },
+                    {
+                        "data": "id",
+                        "render": function (data, type) {
+                            return '<a href="EditUser/' + data + '" class="btn btn-primary" >Edit</a>'
+                        }
+                    },
+                    {
+                        "data": "id",
+                        "render": function (data, type) {
+                            return '<button class="btn btn-danger" onclick=\'DeleteUser("' + data + '")\'>Delete</button>'
+                        }
+
+                    }
+                ]
+            });
+        });
+
+        function DeleteUser(id) {
+            console.log(id);
+            bootbox.confirm({
+                size: "small",
+                message: "Are you sure to Delete This User?",
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            type: "POST",
+                            url: "/ManagementSystem/DeleteUser",
+                            data: { Id: id },
+                            dataType: "json",
+                            success: function (data) {
+
+                                if (data.resulte) {
+                                    toastr.success(data.msg, 'Done');
+                                    $('#data-table').DataTable().ajax.reload();
+                                }
+
+                            },
+                            error: function (req, status, error) {
+                                alert(error);
+                            }
+                        });
+                    }
                 }
-            </tbody>
-        </table>
-
-    }
-
-</div>
+                });
+        }
+    </script>
+}

@@ -51,6 +51,36 @@ namespace PermissionSystemMVC.Controllers
 
             return View(usersList);
         }
+        [HttpGet]
+        public async Task<ActionResult> GetAllUsers()
+        {
+            var usersList = new List<UserListViewModel>();
+            var users = _context.Users.Include(u => u.Department).ToList();
+
+            foreach (var user in users)
+            {
+                var userRoles = await _userManager.GetRolesAsync(user);
+
+                var userObj = new UserListViewModel
+                {
+                    Id = user.Id,
+                    Username = user.UserName,
+                    Email = user.Email,
+                    Name = user.Name,
+                    Departmentname = user.Department.Name,
+                    Roles = string.Join(',', userRoles)
+                };
+
+                usersList.Add(userObj);
+            }
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Converters = { new JsonStringEnumConverter() },
+            };
+
+            return Json(new { data = usersList }, options);
+        }
 
         public IActionResult CreateUsers()
         {
@@ -210,47 +240,14 @@ namespace PermissionSystemMVC.Controllers
             ViewData["RoleList"] = _context.Roles.Select(r => r.Name).ToList();
             return View(userToEdit);
         }
+
+        [HttpPost]
         public async Task<IActionResult> DeleteUser(string id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            var users = _context.Users.Include(u => u.Department).ToList();
-
-            var user = await _context.Users.Include(u => u.Department).FirstOrDefaultAsync(x => x.Id == id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            var userRoles = await _userManager.GetRolesAsync(user);
-
-            var userRolesString = string.Join(',', userRoles);
-
-            var model = new UserListViewModel
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Username = user.UserName,
-                Email = user.Email,
-                Roles = userRolesString,
-                Departmentname = user.Department.Name
-            };
-
-            return View(model);
-        }
-
-        [HttpPost, ActionName("DeleteUser")]
-        [ValidateAntiForgeryToken]
-
-        public async Task<IActionResult> DeleteUserConfirmed(string id)
         {
             var user = await _context.Users.FindAsync(id);
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(ManageUsers));
+            return Json(new { resulte = true, msg = "User Deleted!" });
         }
 
 
@@ -284,12 +281,6 @@ namespace PermissionSystemMVC.Controllers
         }
 
 
-        public IActionResult CreateDepartment()
-        {
-            return View();
-        }
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateDepartment(ViewCreateDepartmentModel department)
@@ -307,12 +298,8 @@ namespace PermissionSystemMVC.Controllers
                 return BadRequest();
             }
         }
-        public async Task<IActionResult> EditDepartment(int? id)
+        public async Task<IActionResult> GetEditDepartment(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
             var department = await _context.Departments.FindAsync(id);
 
@@ -320,7 +307,7 @@ namespace PermissionSystemMVC.Controllers
             {
                 return NotFound();
             }
-            return View(department);
+            return Json(new { resulte = department, msg = "edited Department!" });
         }
 
 
@@ -358,32 +345,8 @@ namespace PermissionSystemMVC.Controllers
             return View(department);
         }
 
-        public async Task<IActionResult> DeleteDepartment(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var department = await _context.Departments.FirstOrDefaultAsync(d => d.Id == id);
-
-            if (department == null)
-            {
-                return NotFound();
-            }
-            return View(department);
-        }
-
-        [HttpPost, ActionName("DeleteDepartment")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteDepartmentConfirmed(int id)
-        {
-            var department = await _context.Departments.FindAsync(id);
-            _context.Departments.Remove(department);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(ManageDepartments));
-        }
-        public async Task<IActionResult> Delete(int id)
+        
+        public async Task<IActionResult> DeleteDepartment(int id)
         {
             var department = await _context.Departments.FindAsync(id);
             _context.Departments.Remove(department);
