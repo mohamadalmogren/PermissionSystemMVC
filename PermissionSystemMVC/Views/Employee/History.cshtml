@@ -1,0 +1,78 @@
+﻿@model IEnumerable<PermissionSystemMVC.Models.Request>
+
+@{
+    ViewData["Title"] = "Employee History";
+}
+
+<div class="row">
+    <div class="col-10">
+        <h2>History</h2>
+    </div>
+</div>
+
+<br />
+
+
+@if (Model == null)
+{
+    <span> NO Data !</span>
+}
+else
+{
+    <table id="data-table" class="table table-hover" display nowrap" width="100%">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.PrmisssionType)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DatePrmission)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FromTime)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ToTime)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CreateDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>
+            </tr>
+        </thead>
+
+    </table>
+}
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+
+            var myTable = $("#data-table").DataTable({
+                "paging": false,
+                "scrollY": "500px",
+                "scrollCollapse": true,
+
+                "ajax": {
+                    "url": '/Employee/GetAllRequests',
+                    "type": 'get',
+                    "datatype": 'json'
+                },
+                "columns": [
+                    { "data": "prmisssionType" },
+                    { "data": "datePrmission" },
+                    { "data": "fromTime" },
+                    { "data": "toTime" },
+                    { "data": "createDate" },
+                    { "data": "status" },
+
+                ]
+            });
+
+        });
+
+    </script>
+
+}

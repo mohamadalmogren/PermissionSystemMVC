@@ -65,7 +65,7 @@ $(document).ready(function () {
                 totalMinutes = totalMinutes + minutes;
 
             });
-            $('#TotalRequestHours').append('Total time request in this monthe for personal prmisssion : <b>'
+            $('#TotalRequestHours').append('Total time request in this month for personal prmisssion : <b>'
                 + convertTime(totalMinutes) + ' Hours</b>');
             $('#oldRequestsDiv').append('<p> Total personal Requests  in this month is:  <b>'
                 + data.numberOfRequests + '</b> </p>');

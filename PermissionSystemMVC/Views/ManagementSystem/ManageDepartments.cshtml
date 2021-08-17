@@ -9,7 +9,6 @@
     Create Department
 </button>
 <br />
-<h1 id="h1">h1 here</h1>
 
 @if (Model == null)
 {
@@ -35,7 +34,6 @@ else
 
     </table>
 }
-
 
 <!--Modal CreateDepartment!-->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -87,7 +85,7 @@ else
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <input type="submit" value="Edit" class="btn btn-primary" onclick="toastr.success('Department Edited !');" />
+                    <input type="submit" value="Edit" class="btn btn-primary" />
 
                 </div>
             </form>
@@ -97,86 +95,5 @@ else
 
 
 @section Scripts {
-
-    <script>
-        $(document).ready(function () {
-            $("#data-table").DataTable({
-                "ajax": {
-                    "url": '/ManagementSystem/GetAllDepartments',
-                    "type": 'get',
-                    "datatype": 'json'
-                },
-                "columns": [
-                    { "data": "id" },
-                    { "data": "name" },
-                    {
-                        "data": "id",
-                        "render": function (data, type) {
-                            return '<button class="btn btn-primary" onclick="Edit(' + data + ')">Edit</button>'
-                            //return '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#EditDepartmentName" style="float:right">Create Department </button >'
-
-                        }
-
-                    },
-                    {
-                        "data": "id",
-                        "render": function (data, type) {
-                            return '<button class="btn btn-danger" onclick="Delete(' + data + ')">Delete</button>'
-                        }
-
-                    }
-                ]
-            });
-        });
-        function Edit(id) {
-            $.ajax({
-                type: "POST",
-                url: "/ManagementSystem/GetEditDepartment",
-                data: { Id: id },
-                dataType: "json",
-                success: function (data) {
-
-                    if (data.resulte) {
-                        //$('#data-table').DataTable().ajax.reload();
-                        console.log(data.resulte.id);
-                        $("#EditDepartmentId").val(data.resulte.id);
-                        $("#EditDepartmentName").val(data.resulte.name);
-                        $("#EditDepartment").modal('show');
-                    }
-
-                },
-                error: function (req, status, error) {
-                    alert(error);
-                }
-            });
-        }
-
-        function Delete(id) {
-            bootbox.confirm({
-                size: "small",
-                message: "Are you sure to Delete This Department?",
-                callback: function (result) {
-                    if (result) {
-                        $.ajax({
-                            type: "POST",
-                            url: "/ManagementSystem/DeleteDepartment",
-                            data: { Id: id },
-                            dataType: "json",
-                            success: function (data) {
-
-                                if (data.resulte) {
-                                    toastr.success(data.msg, 'Done');
-                                    $('#data-table').DataTable().ajax.reload();
-                                }
-
-                            },
-                            error: function (req, status, error) {
-                                alert(error);
-                            }
-                        });
-                    }
-                }
-            });
-        }
-    </script>
+    <script src="~/js/ManageDepartment.js"></script>
 }

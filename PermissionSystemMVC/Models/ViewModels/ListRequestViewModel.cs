@@ -11,6 +11,7 @@ namespace PermissionSystemMVC.Models.ViewModels
         public string Id { get; set; }
         [Display(Name = "Employee")]
         public string CreatedBy { get; set; }
+        public string CreatedById { get; set; }
 
 
         [Display(Name = "Prmisssion Type")]
@@ -24,6 +25,8 @@ namespace PermissionSystemMVC.Models.ViewModels
 
         [Display(Name = "To Time")]
         public string ToTime { get; set; }
+        public string TotalTime { get; set; }
+
 
         [Display(Name = "Created Date")]
         public string CreateDate { get; set; }

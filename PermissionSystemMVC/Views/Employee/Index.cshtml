@@ -1,47 +1,59 @@
 ﻿@model IEnumerable<PermissionSystemMVC.Models.Request>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Employee Index";
 }
 
 <div class="row">
     <div class="col-10">
         <h2>Requests</h2>
-    </div>
-    <div class="col-2">
-        <a class="btn btn-primary" asp-action="CreateRequest">Create New</a>
+        <p>Requests dashboard in this month</p>
     </div>
 </div>
 
 <br />
+<div class="card-columns">
+    <div class="card" style="min-height:125px">
+        <div class="card-body">
+            <h5 class="card-title">Total Request Time</h5>
+            <p id="TotalRequestHours" class="card-text"> </p>
+        </div>
+    </div>
+    <div class="card" style="min-height:125px">
+        <div class="card-body">
+            <h5 class="card-title">Requests</h5>
+            <p id="oldRequestsDiv" class="card-text"> </p>
+        </div>
+    </div>
+    <div class="card" style="min-height:125px">
+        <div class="card-body">
+            <h5 class="card-title">Status of Reqests</h5>
+            <p  class="card-text">Statues Requests for Personal Requests </p>
 
+            <span id="Approved" class="alignleft"></span>
+            <span id="Rejected" class="aligncenter"></span>
+            <span id="New" class="alignright"></span>
+        </div>
+    </div>
+</div>
+<hr />
+<h5>Request in this month: </h5>
+<br />
 @if (Model == null)
 {
     <span> NO Data !</span>
 }
 else
 {
-    <table id="data-table" class="class=" display nowrap" width="100%">
+    <table id="data-table" class="table table-hover" display nowrap width="100%">
         <thead>
             <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.PrmisssionType)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.DatePrmission)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.FromTime)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.ToTime)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.CreateDate)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Status)
-                </th>
+                <th>Prmisssion </th>
+                <th>Date Prmission</th>
+                <th>From Time</th>
+                <th>To Time</th>
+                <th>Create Date</th>
+                <th>Status</th>
                 <th>Cancel</th>
             </tr>
         </thead>
@@ -52,12 +64,42 @@ else
 
     <script>
         $(document).ready(function () {
+            $.ajax({
+                type: "POST",
+                url: "Employee/GetRequestsIndex",
+                type: 'get',
+                dataType: "json",
+                success: function (data) {
+                    list = data.notCanceled;
+                    console.log(list);
+                    var totalMinutes = 0;
+                    list.forEach(function (value, index, arr) {
+                        var minutes = parseInt(value.toTime) - parseInt(value.fromTime);
+                        totalMinutes = totalMinutes + minutes;
+                    });
+
+                    $('#TotalRequestHours').append('Total time request in this month for personal prmisssion : <b>'
+                        + convertTime(totalMinutes) + ' Hours</b>');
+                    $('#oldRequestsDiv').append('<p> Total personal Requests  in this month is:  <b>'
+                        + data.thisMonth + '</b> </p>');
+                    $('#Approved').append('Approved :<b>' + data.approve + '</b>');
+                    $('#Rejected').append('Rejected :<b>' + data.rejected + '</b>');
+                    $('#New').append('New :<b>' + data.new + '</b>');
+                },
+                error: function (req, status, error) {
+                    console.log(msg);
+                }
+            });
+
 
             var myTable = $("#data-table").DataTable({
+                searching: false,
+                ordering: false,
                 "ajax": {
-                    "url": 'Employee/GetAllRequests',
+                    "url": 'Employee/GetRequestsIndex',
                     "type": 'get',
-                    "datatype": 'json'
+                    "datatype": 'json',
+
                 },
                 "columns": [
                     { "data": "prmisssionType" },
@@ -67,9 +109,15 @@ else
                     { "data": "createDate" },
                     { "data": "status" },
                     {
-                        "data": "id",
+                        "data": null,
                         "render": function (data, type) {
-                            return '<button class="btn btn-danger" onclick="Cancel(' + data + ')">Cancel</button>'
+                            if (data.status === "New") {
+                                return '<button class="btn btn-danger" onclick="Cancel(' + data.id + ')">Cancel</button>'
+
+                            } else {
+                                return '<p class="text-center">----</p>';
+
+                            }
                         }
 
                     }
@@ -106,6 +154,16 @@ else
                     }
                 }
             });
+        }
+
+        function convertTime(FullTime) {
+            var hours = (FullTime / 60);
+            var rhours = Math.floor(hours);
+            var minutes = (hours - rhours) * 60;
+            var rminutes = Math.round(minutes);
+
+            var time = rhours + ":" + rminutes;
+            return (time);
         }
     </script>
 

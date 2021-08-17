@@ -313,38 +313,21 @@ namespace PermissionSystemMVC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditDepartment(Department department)
+        public async Task<IActionResult> EditDepartment(ViewCreateDepartmentModel department)
         {
-            var dept = await _context.Departments.FindAsync(department.Id);
-
-            if (dept == null)
-            {
-                return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    dept.Name = department.Name;
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Departments.Any(i => i.Id == department.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                var dept = await _context.Departments.FindAsync(department.Id);
+                dept.Name = department.Name;
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(ManageDepartments));
             }
-            return View(department);
+            else
+            {
+                return BadRequest();
+            }
         }
-
         
         public async Task<IActionResult> DeleteDepartment(int id)
         {

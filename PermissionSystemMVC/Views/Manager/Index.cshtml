@@ -9,7 +9,24 @@
         <h2>Requests</h2>
     </div>
 </div>
+<div class="w-75 p-3 mx-auto">
+    <h6>Employees Data this month:</h6>
 
+    <table id="DashBorad" class="table-sm table-hover" display nowrap >
+        <thead>
+            <tr>
+                <th> Employee</th>
+                <th>Requests</th>
+                <th>Hours</th>
+                <th>New</th>
+                <th>Approved</th>
+                <th>Rejected</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<hr />
 <br />
 
 @if (Model == null)
@@ -18,35 +35,20 @@
 }
 else
 {
-    <table id="data-table" display nowrap" width="100%">
+    <table id="data-table" class="table table-hover" display nowrap width="100%">
         <thead>
             <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.CreatedById)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.PrmisssionType)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.DatePrmission)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.FromTime)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.ToTime)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.CreateDate)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Status)
-                </th>
-                <th>Action</th>
-                <th>Action</th>
+                <th>Employee</th>
+                <th>Prmisssion Type</th>
+                <th>Date Prmission</th>
+                <th>From Time</th>
+                <th>To Time</th>
+                <th>Create Date</th>
+                <th>Status</th>
+                <th>Approve</th>
+                <th>Reject</th>
             </tr>
         </thead>
-        
     </table>
 }
 @section Scripts {
@@ -54,9 +56,31 @@ else
     <script>
         $(document).ready(function () {
 
+            var DashBorad = $("#DashBorad").DataTable({
+                "scrollY": "200px",
+                "scrollCollapse": true,
+                "paging": false,
+                "bInfo": false,
+                "ordering": false,
+                "ajax": {
+                    "url": 'Manager/GetUserList',
+                    "type": 'get',
+                    "datatype": 'json'
+                },
+                "columns": [
+                    { "data": "name" },
+                    { "data": "requests" },
+                    { "data": "hours" },
+                    { "data": "new" },
+                    { "data": "approved" },
+                    { "data": "rejected" }
+                ]
+            });
+
+
             var myTable = $("#data-table").DataTable({
                 "ajax": {
-                    "url": 'Manager/GetAllRequests',
+                    "url": 'Manager/GetAllRequestsIndex',
                     "type": 'get',
                     "datatype": 'json'
                 },
@@ -69,21 +93,29 @@ else
                     { "data": "createDate" },
                     { "data": "status" },
                     {
-                        "data": "id",
+                        "data": null,
                         "render": function (data, type) {
-                            return '<button class="btn btn-success" onclick="Approve(' + data + ')">Approve</button>'
+                            if (data.status === "New") {
+                                return '<button class="btn btn-success" onclick="Approve(' + data.id + ')">Approve</button>';
+                            } else {
+                                return '<p class="text-center">----</p>';
+                            }
                         }
                     },
                     {
-                        "data": "id",
+                        "data": null,
                         "render": function (data, type) {
-                            return '<button class="btn btn-danger" onclick="Reject(' + data + ')">Reject</button>'
+                            if (data.status === "New") {
+                                return '<button class="btn btn-danger" onclick="Reject(' + data.id + ')">Reject</button>'
+                            } else {
+                                return '<p class="text-center">----</p>';
+                            }
                         }
 
                     }
                 ]
             });
-            
+
         });
 
         function Approve(id) {
@@ -102,6 +134,7 @@ else
                                 if (data.resulte) {
                                     toastr.success(data.msg, 'Done');
                                     $('#data-table').DataTable().ajax.reload();
+                                    $('#DashBorad').DataTable().ajax.reload();
                                 }
                                 else {
                                     toastr.error(data.msg, 'Error');
@@ -131,6 +164,8 @@ else
                                 if (data.resulte) {
                                     toastr.success(data.msg, 'Done');
                                     $('#data-table').DataTable().ajax.reload();
+                                    $('#DashBorad').DataTable().ajax.reload();
+
                                 }
                                 else {
                                     toastr.error(data.msg, 'Error');

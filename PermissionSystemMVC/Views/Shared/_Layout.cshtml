@@ -6,9 +6,25 @@
     <title>@ViewData["Title"] - PermissionSystem</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
-    <link rel="stylesheet" href="~/lib/DataTables/css/dataTables.dataTables.min.css" />
+    <link rel="stylesheet" href="~/lib/DataTables/css/dataTables.bootstrap4.css" />
     <link rel="stylesheet" href="~/lib/toastr/css/toastr.css" />
-
+    <style>
+        .alignleft {
+            float: left;
+            width: 33.33333%;
+            text-align: left;
+        }
+        .aligncenter {
+            float: left;
+            width: 33.33333%;
+            text-align: center;
+        }
+        .alignright {
+            float: left;
+            width: 33.33333%;
+            text-align: right;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -26,20 +42,30 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         @*<li class="nav-item">
-            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </li>*@
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            </li>*@
                         @if (User.IsInRole(RolesName.Employee))
                         {
 
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="Index">Request</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="Index">Requests</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="History">History</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="CreateRequest">New Request</a>
                             </li>
                         }
                         @if (User.IsInRole(RolesName.Manager))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Manager" asp-action="Index">Request</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Manager" asp-action="Index">Requests</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Manager" asp-action="History">History</a>
+                            </li>
+
                         }
 
 
@@ -77,6 +103,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <script src="~/lib/DataTables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/DataTables/js/dataTables.bootstrap4.js"></script>
     <script src="~/lib/BootBox/js/bootbox.js"></script>
     <script src="~/lib/toastr/js/toastr.min.js"></script>
 

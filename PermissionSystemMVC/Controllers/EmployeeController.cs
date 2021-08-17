@@ -29,7 +29,12 @@ namespace PermissionSystemMVC.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // Get Reuests for Employee
+            var requests = await _context.Request.Where(r => r.CreatedById == User.GetUserId()).ToListAsync();
+
+            return View(requests);
+        }
+        public async Task<IActionResult> History()
+        {
             var requests = await _context.Request.Where(r => r.CreatedById == User.GetUserId()).ToListAsync();
 
             return View(requests);
@@ -66,6 +71,81 @@ namespace PermissionSystemMVC.Controllers
 
             return Json(new { data = retrunList }, options);
         }
+        [HttpGet]
+        public async Task<ActionResult> GetRequestsIndex()
+        {
+            var retrunList = new List<ListRequestViewModel>();
+            var RequestNotCanceledList = new List<ListRequestViewModel>();
+
+            var requests = await _context.Request
+                .Include(r => r.CreatedBy)
+                .Where(r => r.CreatedById == User.GetUserId())
+                .Where(r => r.DatePrmission.Month == DateTime.Now.Month)
+                .ToListAsync();
+
+            foreach (var item in requests)
+            {
+                retrunList.Add(new ListRequestViewModel
+                {
+                    Id = item.Id.ToString(),
+                    PrmisssionType = item.PrmisssionType.ToString(),
+                    DatePrmission = item.DatePrmission.ToString("dd/MM/yyyy"),
+                    FromTime = item.FromTime.ToString("HH:mm"),
+                    ToTime = item.ToTime.ToString("HH:mm"),
+                    CreateDate = item.CreateDate.ToString("dd/MM/yyyy"),
+                    Status = item.Status.ToString()
+                });
+            }
+           
+            var RequestsCount = await _context.Request
+                .Include(r => r.CreatedBy)
+                .Where(r => r.CreatedById == User.GetUserId())
+                .Where(r => r.DatePrmission.Month == DateTime.Now.Month)
+                .Where(r => r.Status == Models.Request.PrmisssionStatusEnum.Canceled == false)
+                .ToListAsync();
+
+            var Approved =  RequestsCount
+                .Where(r => r.Status == Models.Request.PrmisssionStatusEnum.Approved).ToList();
+
+            var Rejected = RequestsCount
+                .Where(r => r.Status == Models.Request.PrmisssionStatusEnum.Rejected).ToList();
+
+            var New = RequestsCount
+                .Where(r => r.Status == Models.Request.PrmisssionStatusEnum.New).ToList();
+
+
+            foreach (var item in RequestsCount)
+            {
+                var TotalFromTime = (item.FromTime.Hour * 60) + item.FromTime.Minute;
+                var TotalToTime = (item.ToTime.Hour * 60) + item.ToTime.Minute;
+
+                RequestNotCanceledList.Add(new ListRequestViewModel
+                {
+                    Id = item.Id.ToString(),
+                    FromTime = TotalFromTime.ToString(),
+                    ToTime = TotalToTime.ToString(),
+                    Status = item.Status.ToString()
+                });
+            }
+
+            JsonSerializerOptions options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Converters = { new JsonStringEnumConverter() },
+            };
+
+            return Json(new
+                {
+                    data = retrunList,
+                    notCanceled = RequestNotCanceledList,
+                    ThisMonth = RequestNotCanceledList.Count,
+                    Approve = Approved.Count,
+                    Rejected = Rejected.Count,
+                    New = New.Count
+                }, options
+            );
+        }
+
 
         [HttpGet]
         public async Task<ActionResult> GetRequestsForCreate()
